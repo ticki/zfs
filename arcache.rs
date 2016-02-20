@@ -1,20 +1,25 @@
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{HashMap, VecDeque};
 
 use super::dvaddr::DVAddr;
 use super::zio;
+use super::djb2::Djb2;
+use std::hash::BuildHasherDefault;
 
 /// MRU - Most Recently Used cache
 struct Mru {
-    map: BTreeMap<DVAddr, Vec<u8>>,
-    queue: VecDeque<DVAddr>, // Oldest DVAddrs are at the end
-    size: usize, // Max mru cache size in blocks
-    used: usize, // Number of used blocks in mru cache
+    map: HashMap<DVAddr, Vec<u8>, BuildHasherDefault<Djb2>>,
+    /// Oldest DVAddrs are at the end
+    queue: VecDeque<DVAddr>, 
+    /// Max mru cache size in blocks
+    size: usize,
+    /// Number of used blocks in mru cache
+    used: usize,
 }
 
 impl Mru {
     pub fn new() -> Self {
         Mru {
-            map: BTreeMap::new(),
+            map: HashMap::with_hasher(Default::default()),
             queue: VecDeque::new(),
             size: 1000,
             used: 0,
@@ -46,7 +51,7 @@ struct Mfu {
     // count every once in a while. For instance, every 1000 reads. This will probably end up being
     // a knob for the user.
     // TODO: Keep track of minimum frequency and corresponding DVA
-    map: BTreeMap<DVAddr, (u64, Vec<u8>)>,
+    map: HashMap<DVAddr, (u64, Vec<u8>), BuildHasherDefault<Djb2>>,
     size: usize, // Max mfu cache size in blocks
     used: usize, // Number of used bytes in mfu cache
 }
@@ -54,7 +59,7 @@ struct Mfu {
 impl Mfu {
     pub fn new() -> Self {
         Mfu {
-            map: BTreeMap::new(),
+            map: HashMap::with_hasher(Default::default()),
             size: 1000,
             used: 0,
         }
@@ -82,10 +87,10 @@ impl Mfu {
     }
 }
 
-// Our implementation of the Adaptive Replacement Cache (ARC) is set up to allocate
-// its buffer on the heap rather than in a private pool thing. This makes it much
-// simpler to implement, but defers the fragmentation problem to the heap allocator.
-// We named the type `ArCache` to avoid confusion with Rust's `Arc` reference type.
+/// Our implementation of the Adaptive Replacement Cache (ARC) is set up to allocate
+/// its buffer on the heap rather than in a private pool thing. This makes it much
+/// simpler to implement, but defers the fragmentation problem to the heap allocator.
+/// We named the type `ArCache` to avoid confusion with Rust's `Arc` reference type.
 pub struct ArCache {
     mru: Mru,
     mfu: Mfu,
