@@ -53,6 +53,7 @@ pub mod zap;
 pub mod zfs;
 pub mod zil_header;
 pub mod zio;
+pub mod djb2;
 
 pub struct ZfsReader {
     pub zio: zio::Reader,
@@ -70,11 +71,10 @@ impl ZfsReader {
             1 | 3 => {
                 // lzjb compression
                 let mut decompressed = vec![0; (block_ptr.lsize()*512) as usize];
-                lzjb::decompress(&match data {
+                lzjb::LzjbDecoder::new(&match data {
                                      Ok(data) => data,
                                      Err(e) => return Err(e),
-                                 },
-                                 &mut decompressed);
+                                 }).read(&mut decompressed);
                 Ok(decompressed)
             }
             u => Err(format!("Error: Unknown compression type {}", u)),

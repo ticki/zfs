@@ -1,3 +1,17 @@
+const VDEV_SYNC_READ_MIN_ACTIVE: u32 = 10;
+const VDEV_SYNC_READ_MAX_ACTIVE: u32 = 10;
+const VDEV_SYNC_WRITE_MIN_ACTIVE: u32 = 10;
+const VDEV_SYNC_WRITE_MAX_ACTIVE: u32 = 10;
+const VDEV_ASYNC_READ_MIN_ACTIVE: u32 = 1;
+const VDEV_ASYNC_READ_MAX_ACTIVE: u32 = 3;
+const VDEV_ASYNC_WRITE_MIN_ACTIVE: u32 = 1;
+const VDEV_ASYNC_WRITE_MAX_ACTIVE: u32 = 10;
+const VDEV_SCRUB_MIN_ACTIVE: u32 = 1;
+const VDEV_SCRUB_MAX_ACTIVE: u32 = 2;
+const VDEV_ASYNC_WRITE_ACTIVE_MIN_DIRTY_PERCENT: u32 = 30;
+const VDEV_ASYNC_WRITE_ACTIVE_MAX_DIRTY_PERCENT: u32 = 60;
+const DIRTY_DATA_MAX: u32 = 10;
+
 use std::cmp;
 use std::rc::Rc;
 
@@ -12,6 +26,7 @@ use super::uberblock::Uberblock;
 use super::vdev;
 use super::zfs;
 use super::zio;
+use super::dsl_pool::DslPool;
 
 pub enum ImportType {
     Existing,
@@ -25,7 +40,7 @@ pub struct Spa {
     state: zfs::PoolState,
     load_state: zfs::SpaLoadState,
     zio_taskq: Vec<Vec<SpaTaskqs>>,
-    // dsl_pool: DslPool,
+    dsl_pool: DslPool,
     normal_class: Rc<MetaslabClass>, // normal data class
     log_class: Rc<MetaslabClass>, // intent log data class
     first_txg: u64,
@@ -38,6 +53,47 @@ pub struct Spa {
 }
 
 impl Spa {
+    /// Calculate the VDev queue's maximum async writes
+    pub fn vdev_queue_max_async_writes(&self) -> u32 {
+        let mut writes;
+        let dirty = self.dsl_pool.dp_dirty_total;
+
+        let min_bytes = DIRTY_DATA_MAX * VDEV_ASYNC_WRITE_ACTIVE_MIN_DIRTY_PERCENT / 100;
+        let max_bytes = DIRTY_DATA_MAX * VDEV_ASYNC_WRITE_ACTIVE_MAX_DIRTY_PERCENT / 100;
+
+        // TODO
+        if false {//self.pending_synctask() {
+            VDEV_ASYNC_WRITE_MAX_ACTIVE
+        } else if dirty < min_bytes {
+            VDEV_ASYNC_WRITE_MIN_ACTIVE
+        } else if dirty > max_bytes {
+            VDEV_ASYNC_WRITE_MAX_ACTIVE
+        } else {
+
+            // linear interpolation
+            writes = (dirty - min_bytes) * (VDEV_ASYNC_WRITE_MAX_ACTIVE - VDEV_ASYNC_WRITE_MIN_ACTIVE) / (max_bytes - min_bytes) + VDEV_ASYNC_WRITE_MIN_ACTIVE;
+            assert!(writes >= VDEV_ASYNC_WRITE_MIN_ACTIVE);
+            assert!(writes <= VDEV_ASYNC_WRITE_MAX_ACTIVE);
+
+            writes
+        }
+    }
+
+    /// Calculate the VDev queue maximum number of active classes
+    pub fn vdev_queue_class_max_active(&self, p: zio::Priority) -> u32 {
+        match p {
+            zio::Priority::SyncRead =>  VDEV_SYNC_READ_MAX_ACTIVE,
+            zio::Priority::SyncWrite => VDEV_SYNC_WRITE_MAX_ACTIVE,
+            zio::Priority::AsyncRead => VDEV_ASYNC_READ_MAX_ACTIVE,
+            zio::Priority::AsyncWrite => self.vdev_queue_max_async_writes(),
+            zio::Priority::Scrub => VDEV_SCRUB_MAX_ACTIVE,
+            _ => {
+                panic!("invalid priority {:?}", p);
+                0
+            }
+        }
+    }
+
     pub fn create(name: String, nvroot: &NvList) -> zfs::Result<Self> {
         let mut config = NvList::new(0);
         config.add("name".to_string(), NvValue::String(name.clone()));
@@ -84,7 +140,7 @@ impl Spa {
             state: zfs::PoolState::Uninitialized,
             load_state: zfs::SpaLoadState::None,
             zio_taskq: Vec::new(),
-            // dsl_pool: blah,
+            dsl_pool: DslPool::new(),
             normal_class: normal_class,
             log_class: log_class,
             first_txg: 0,

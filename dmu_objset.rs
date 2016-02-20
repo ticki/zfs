@@ -16,6 +16,34 @@ impl FromBytes for ObjectSetPhys {}
 
 pub struct ObjectSet;
 
+pub enum ObjectType {
+    DmuOtNone,
+    DmuOtJectDirectory,
+    DmuOtJectArray,
+    DmuOtPackedNvlist,
+    DmuOtNvlistSize,
+    DmuOtBplist,
+    DmuOtBplistHdr,
+    DmuOtSpaceMapHeader,
+    DmuOtSpaceMap,
+    DmuOtIntentLog,
+    DmuOtDnode,
+    DmuOtJset,
+    DmuOtDslDataset,
+    DmuOtDslDataset_child_map,
+    DmuOtJsetSnap_map,
+    DmuOtDslProps,
+    DmuOtDslJset,
+    DmuOtZnode,
+    DmuOtAcl,
+    DmuOtPlainFile_contents,
+    DmuOtDirectoryContents,
+    DmuOtMasterNode,
+    DmuOtDeleteQueue,
+    DmuOtZvol,
+    DmuOtZvolProp,
+}
+
 // pub struct ObjectSet {
 // Immutable
 // dsl_dataset *os_dsl_dataset;

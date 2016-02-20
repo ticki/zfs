@@ -2,8 +2,10 @@ use std::rc::Rc;
 
 pub struct Node<T> {
     value: T,
-    left: Option<usize>, // ID for left node
-    right: Option<usize>, // ID for right node
+    /// ID for left node
+    left: Option<usize>,
+    /// ID for right node
+    right: Option<usize>, 
 }
 
 impl<T> Node<T> {
@@ -28,7 +30,6 @@ impl<T> Node<T> {
     }
 }
 
-/// /////////////////////////////////////////////////////////////////////////////////////////////////
 #[derive(Copy, Clone)]
 pub struct NodeId {
     index: usize,
@@ -79,8 +80,6 @@ impl NodeId {
     }
 }
 
-/// /////////////////////////////////////////////////////////////////////////////////////////////////
-
 pub struct Tree<T, K> {
     root: Option<usize>, // Index of the root node
     nodes: Vec<Slot<T>>,
@@ -98,8 +97,8 @@ impl<T, K: PartialOrd> Tree<T, K> {
         }
     }
 
-    // Inserts a value into the tree, keeping it balanced. Lesser values will be stored on
-    // the left, while greater values will be stored on the right. No duplicates are allowed.
+    /// Inserts a value into the tree, keeping it balanced. Lesser values will be stored on
+    /// the left, while greater values will be stored on the right. No duplicates are allowed.
     pub fn insert(&mut self, value: T) {
         let root = self.root;
         self.root = Some(self._insert(value, root));
@@ -192,8 +191,8 @@ impl<T, K: PartialOrd> Tree<T, K> {
         }
     }
 
-    // Performs a left rotation on a tree/subtree.
-    // Returns the replace the specified node with
+    /// Performs a left rotation on a tree/subtree.
+    /// Returns the replace the specified node with
     fn rotate_left(&mut self, node: usize) -> usize {
         // Keep track of the original node positions
         // For a rotate left, the right child node must exist
@@ -207,8 +206,8 @@ impl<T, K: PartialOrd> Tree<T, K> {
         ret
     }
 
-    // Performs a right rotation on a tree/subtree.
-    // Returns the replace the specified node with
+    /// Performs a right rotation on a tree/subtree.
+    /// Returns the replace the specified node with
     fn rotate_right(&mut self, node: usize) -> usize {
         // Keep track of the original node positions
         // For a rotate right, the left child node must exist
@@ -222,7 +221,7 @@ impl<T, K: PartialOrd> Tree<T, K> {
         ret
     }
 
-    // Performs a left-right double rotation on a tree/subtree.
+    /// Performs a left-right double rotation on a tree/subtree.
     fn rotate_leftright(&mut self, node: usize) -> usize {
         let l = self.node(node).left.unwrap();
         let new_l = self.rotate_left(l); // Left node needs to exist
@@ -230,7 +229,7 @@ impl<T, K: PartialOrd> Tree<T, K> {
         self.rotate_right(node)
     }
 
-    // Performs a right-left double rotation on a tree/subtree.
+    /// Performs a right-left double rotation on a tree/subtree.
     fn rotate_rightleft(&mut self, node: usize) -> usize {
         let r = self.node(node).right.unwrap();
         let new_r = self.rotate_right(r); // Right node needs to exist
@@ -238,8 +237,8 @@ impl<T, K: PartialOrd> Tree<T, K> {
         self.rotate_left(node)
     }
 
-    // Rebalances the provided node and returns the node to replace it with if rotations
-    // occur
+    /// Rebalances the provided node and returns the node to replace it with if rotations
+    /// occur
     fn rebalance(&mut self, node: usize) -> usize {
         let balance = self.height(self.node(node).left) - self.height(self.node(node).right);
         if balance == 2 {
@@ -269,7 +268,7 @@ impl<T, K: PartialOrd> Tree<T, K> {
         node
     }
 
-    // height gets the height of a tree or subtree
+    /// height gets the height of a tree or subtree
     fn height(&self, node: Option<usize>) -> i64 {
         match node {
             Some(node) => {
@@ -325,7 +324,6 @@ impl<T, K: PartialOrd> Tree<T, K> {
     }
 }
 
-/// /////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct Slot<T> {
     time_stamp: u64,

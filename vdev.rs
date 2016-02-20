@@ -39,19 +39,43 @@ pub trait IVdevOps {
 
 /// /////////////////////////////////////////////////////////////////////////////////////////////////
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub enum VdevType {
+    Disk,
+    File,
+    Mirror,
+    Raidz,
+    Replacing,
+    Root,
+}
+
+impl VdevType {
+    fn to_str(self) -> &'static str {
+        match self {
+            VdevType::Disk => "disk",
+            VdevType::File => "file",
+            VdevType::Mirror => "mirror",
+            VdevType::Raidz => "raidz",
+            VdevType::Replacing => "replacing",
+            VdevType::Root => "root",
+        }
+    }
+}
+
 pub struct VdevOps {
     pub ops: Box<IVdevOps>,
     // io_start: fn(&zio::Zio),
     // io_done: fn(&zio::Zio),
     // state_change: fn(),
-    vdev_type: String,
+    vdev_type: VdevType,
     is_leaf: bool,
 }
 
 impl VdevOps {
     pub fn vdev_type(&self) -> &str {
-        self.vdev_type.as_ref()
+        self.vdev_type.to_str()
     }
+
     pub fn is_leaf(&self) -> bool {
         self.is_leaf
     }
@@ -62,7 +86,7 @@ fn load_ops(vdev_type: &str, nv: &NvList) -> zfs::Result<VdevOps> {
         "disk" => {
             Ok(VdevOps {
                 ops: Box::new(try!(VdevFile::load(nv))),
-                vdev_type: "disk".to_string(),
+                vdev_type: VdevType::Disk,
                 is_leaf: true,
             })
         }
