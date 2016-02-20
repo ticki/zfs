@@ -4,6 +4,7 @@ use super::zfs;
 pub struct DslPool {
     // Immutable
     root_dir_obj: u64,
+    pub dp_dirty_total: u32,
 }
 
 impl DslPool {
@@ -12,6 +13,16 @@ impl DslPool {
     }
 
     fn open_impl(spa: &mut spa::Spa, txg: u64) -> zfs::Result<Self> {
-        Ok(DslPool { root_dir_obj: 0 })
+        Ok(DslPool {
+            root_dir_obj: 0,
+            dp_dirty_total: 0,
+        })
+    }
+
+    pub fn new() -> DslPool {
+        DslPool {
+            root_dir_obj: 0,
+            dp_dirty_total: 0,
+        }
     }
 }
