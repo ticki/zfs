@@ -1,3 +1,6 @@
 main
 *.swp
 zfs.img
+target
+build
+*.lock
