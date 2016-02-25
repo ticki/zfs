@@ -1,0 +1,10 @@
+[package]
+name = "zfs"
+version = "0.1.0"
+authors = ["Ticki <Ticki@users.noreply.github.com>"]
+
+[dependencies]
+
+[lib]
+name = "zfs"
+path = "src/zfs.rs"
