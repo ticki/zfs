@@ -92,13 +92,13 @@ impl SpaceMap {
                     tree: &mut avl::Tree<Segment, u64>,
                     bytes: &[u8],
                     map_type: MapType)
-                    -> Result<(), String> {
+                    -> Result<(), &str> {
         for i in 0..(self.size as usize) {
             let entry = Entry::from_bytes(&bytes[i * mem::size_of::<Entry>()..]).unwrap();
             let entry_map_type = match entry.map_type() {
                 Some(map_type) => map_type,
                 None => {
-                    return Err("Invalid map type".to_owned());
+                    return Err("Invalid map type");
                 }
             };
             if entry.debug() != 1 && entry_map_type == map_type {

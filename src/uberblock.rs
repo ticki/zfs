@@ -28,7 +28,7 @@ impl Uberblock {
 }
 
 impl FromBytes for Uberblock {
-    fn from_bytes(data: &[u8]) -> Result<Self, String> {
+    fn from_bytes(data: &[u8]) -> Result<Self, &str> {
         if data.len() >= mem::size_of::<Uberblock>() {
             let uberblock = unsafe { ptr::read(data.as_ptr() as *const Uberblock) };
             if uberblock.magic == Uberblock::magic_little() {
@@ -36,12 +36,10 @@ impl FromBytes for Uberblock {
             } else if uberblock.magic == Uberblock::magic_big() {
                 Ok(uberblock)
             } else {
-                Err("Error: Invalid uberblock magic number".to_owned())
+                Err("Error: Invalid uberblock magic number")
             }
         } else {
-            Err(format!("Error: Need {} bytes to read uberblock, only {} in buffer",
-                        mem::size_of::<Uberblock>(),
-                        data.len()))
+            Err("Not enough bytes to read Uberblock.")
         }
     }
 }

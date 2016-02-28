@@ -37,7 +37,7 @@ impl Reader {
         self.read(dva.sector() as usize, dva.asize() as usize)
     }
 
-    pub fn read_block(&mut self, block_ptr: &BlockPtr) -> Result<Vec<u8>, String> {
+    pub fn read_block(&mut self, block_ptr: &BlockPtr) -> Result<Vec<u8>, &'static str> {
         let data = self.read_dva(&block_ptr.dvas[0]);
         match block_ptr.compression() {
             2 => {
@@ -50,24 +50,24 @@ impl Reader {
                 lzjb::LzjbDecoder::new(&data).read(&mut decompressed);
                 Ok(decompressed)
             }
-            _ => Err("Error: not enough bytes".to_owned()),
+            _ => Err("Error: not enough bytes"),
         }
     }
 
-    pub fn read_type<T: FromBytes>(&mut self, block_ptr: &BlockPtr) -> Result<T, String> {
-        let data = self.read_block(block_ptr);
-        data.and_then(|data| T::from_bytes(&data[..]))
+    /*
+    pub fn read_type<T: FromBytes>(&mut self, block_ptr: &BlockPtr) -> Result<T, &'static str> {
+        self.read_block(block_ptr).and_then(|data| T::from_bytes(&data[..]))
     }
+    */
 
     pub fn read_type_array<T: FromBytes>(&mut self,
                                          block_ptr: &BlockPtr,
                                          offset: usize)
         -> Result<T, String> {
-            let data = self.read_block(block_ptr);
-            data.and_then(|data| T::from_bytes(&data[offset * mem::size_of::<T>()..]))
+            self.read_block(block_ptr).map_err(|x| x.to_owned()).and_then(|data| T::from_bytes(&data[offset * mem::size_of::<T>()..]).map_err(|x| x.to_owned()))
         }
 
-    pub fn uber(&mut self) -> Result<Uberblock, String> {
+    pub fn uber(&mut self) -> Result<Uberblock, &'static str> {
         let mut newest_uberblock: Option<Uberblock> = None;
         for i in 0..128 {
             if let Ok(uberblock) = Uberblock::from_bytes(&self.read(256 + i * 2, 2)) {
@@ -92,7 +92,7 @@ impl Reader {
 
         match newest_uberblock {
             Some(uberblock) => Ok(uberblock),
-            None => Err("Failed to find valid uberblock".to_owned()),
+            None => Err("Failed to find valid uberblock"),
         }
     }
 }

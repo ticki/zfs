@@ -26,12 +26,12 @@ impl Mru {
         }
     }
 
-    pub fn cache_block(&mut self, dva: &DVAddr, block: Vec<u8>) -> Result<Vec<u8>, String> {
+    pub fn cache_block(&mut self, dva: &DVAddr, block: Vec<u8>) -> Result<Vec<u8>, &str> {
         // If necessary, make room for the block in the cache
         while self.used + (dva.asize() as usize) > self.size {
             let last_dva = match self.queue.pop_back() {
                 Some(dva) => dva,
-                None => return Err("No more ARC MRU items to free".to_owned()),
+                None => return Err("No more ARC MRU items to free"),
             };
             self.map.remove(&last_dva);
             self.used -= last_dva.asize() as usize;
@@ -65,10 +65,10 @@ impl Mfu {
         }
     }
 
-    pub fn cache_block(&mut self, dva: &DVAddr, block: Vec<u8>) -> Result<Vec<u8>, String> {
+    pub fn cache_block(&mut self, dva: &DVAddr, block: Vec<u8>) -> Result<&[u8], &str> {
         {
-            let mut lowest_freq = ::std::u64::MAX;
-            let mut lowest_dva: Result<DVAddr, String> = Err("No valid DVA found.".to_owned());
+            let mut lowest_freq = !0;
+            let mut lowest_dva  = Err("No valid DVA found.");
 
             for (&dva_key, &(freq, _)) in self.map.iter() {
                 if freq < lowest_freq {
@@ -83,7 +83,7 @@ impl Mfu {
         // Add the block to the cache
         self.used += dva.asize() as usize;
         self.map.insert(*dva, (2, block));
-        Ok(self.map.get(dva).unwrap().1.clone())
+        Ok(&self.map.get(dva).unwrap().1)
     }
 }
 
@@ -104,7 +104,7 @@ impl ArCache {
         }
     }
 
-    pub fn read(&mut self, reader: &mut zio::Reader, dva: &DVAddr) -> Result<Vec<u8>, String> {
+    pub fn read(&mut self, reader: &mut zio::Reader, dva: &DVAddr) -> Result<Vec<u8>, &str> {
         if let Some(block) = self.mru.map.remove(dva) {
             self.mfu.map.insert(*dva, (0, block.clone()));
 

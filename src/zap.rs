@@ -29,7 +29,7 @@ pub struct MZapWrapper {
 }
 
 impl FromBytes for MZapWrapper {
-    fn from_bytes(data: &[u8]) -> Result<Self, String> {
+    fn from_bytes(data: &[u8]) -> Result<Self, &str> {
         if data.len() >= mem::size_of::<MZapPhys>() {
             // Read the first part of the mzap -- its base phys struct
             let mzap_phys = unsafe { ptr::read(data.as_ptr() as *const MZapPhys) };
@@ -49,7 +49,7 @@ impl FromBytes for MZapWrapper {
                 chunks: mzap_entries,
             })
         } else {
-            Err("Error: needs a proper error message".to_owned())
+            Err("Error: needs a proper error message")
         }
     }
 }
