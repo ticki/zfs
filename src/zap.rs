@@ -49,7 +49,7 @@ impl FromBytes for MZapWrapper {
                 chunks: mzap_entries,
             })
         } else {
-            Err("Error: needs a proper error message".to_string())
+            Err("Error: needs a proper error message".to_owned())
         }
     }
 }

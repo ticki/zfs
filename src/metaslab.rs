@@ -84,7 +84,7 @@ pub struct MetaslabGroup {
 impl MetaslabGroup {
     pub fn create(ms_class: Rc<MetaslabClass>) -> Self {
         let metaslab_key = Rc::new(|ms: &MetaslabAvlNode| (ms.weight, ms.start));
-        let taskq = Taskq::new("metaslab_group_taskq".to_string(),
+        let taskq = Taskq::new("metaslab_group_taskq".to_owned(),
                                // metaslab_load_pct
                                4,
                                10,

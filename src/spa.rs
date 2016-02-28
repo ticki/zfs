@@ -96,7 +96,7 @@ impl Spa {
 
     pub fn create(name: String, nvroot: &NvList) -> zfs::Result<Self> {
         let mut config = NvList::new(0);
-        config.add("name".to_string(), NvValue::String(name.clone()));
+        config.add("name".to_owned(), NvValue::String(name.clone()));
         Self::new(name, config, vdev::AllocType::Add)
     }
 

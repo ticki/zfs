@@ -50,7 +50,7 @@ impl Reader {
                 lzjb::LzjbDecoder::new(&data).read(&mut decompressed);
                 Ok(decompressed)
             }
-            _ => Err("Error: not enough bytes".to_string()),
+            _ => Err("Error: not enough bytes".to_owned()),
         }
     }
 
@@ -92,7 +92,7 @@ impl Reader {
 
         match newest_uberblock {
             Some(uberblock) => Ok(uberblock),
-            None => Err("Failed to find valid uberblock".to_string()),
+            None => Err("Failed to find valid uberblock".to_owned()),
         }
     }
 }

@@ -75,11 +75,11 @@ vdev_label_write(zio_t *zio, vdev_t *vd, l: u8, void *buf, uint64_t offset,
 fn vdev_config_generate(spa_t *spa, vdev_t *vd, boolean_t getstats, vdev_config_flag_t flags) -> NvList {
     let nv = NvList::new(0);
 
-    nv.add("type".to_string(), NvValue::String(vd.ops.vdev_type));
+    nv.add("type".to_owned(), NvValue::String(vd.ops.vdev_type));
     if !(flags & (VDEV_CONFIG_SPARE | VDEV_CONFIG_L2CACHE)) {
-        nv.add("id".to_string(), NvValue::Uint64(vd.id));
+        nv.add("id".to_owned(), NvValue::Uint64(vd.id));
     }
-    nv.add("guid".to_string(), NvValue::Uint64(vd.guid));
+    nv.add("guid".to_owned(), NvValue::Uint64(vd.guid));
 
     if (vd->vdev_path != NULL)
         fnvlist_add_string(nv, ZPOOL_CONFIG_PATH, vd->vdev_path);

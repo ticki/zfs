@@ -123,7 +123,7 @@ impl ZfsReader {
 
         match newest_uberblock {
             Some(uberblock) => Ok(uberblock),
-            None => Err("Failed to find valid uberblock".to_string()),
+            None => Err("Failed to find valid uberblock".to_owned()),
         }
     }
 }
@@ -160,7 +160,7 @@ impl Zfs {
         // vdev_tree
         // },
         // None => {
-        // return Err("No vdev_tree in vdev label nvpairs".to_string());
+        // return Err("No vdev_tree in vdev label nvpairs".to_owned());
         // },
         // };
         //
@@ -168,7 +168,7 @@ impl Zfs {
         // if let NvValue::NvList(ref vdev_tree) = *vdev_tree {
         // vdev_tree
         // } else {
-        // return Err("vdev_tree is not NvValue::NvList".to_string());
+        // return Err("vdev_tree is not NvValue::NvList".to_owned());
         // };
 
 
@@ -220,7 +220,7 @@ impl Zfs {
 
         let root = match root {
             Some(root) => Ok(root),
-            None => Err("Error: failed to get the ROOT".to_string()),
+            None => Err("Error: failed to get the ROOT".to_owned()),
         };
 
         Ok(Zfs {
@@ -382,10 +382,10 @@ impl Zfs {
                                                           .map(|x| {
                                                               if x.value & 0xF000000000000000 ==
                                                                  0x4000000000000000 {
-                                                                  x.name().unwrap().to_string() +
+                                                                  x.name().unwrap().to_owned() +
                                                                   "/"
                                                               } else {
-                                                                  x.name().unwrap().to_string()
+                                                                  x.name().unwrap().to_owned()
                                                               }
                                                           })
                                                           .take_while(|x| !x.is_empty())
@@ -418,7 +418,7 @@ fn main() {
         stdout().flush();
 
         if let Some(line) = readln!() {
-            let args: Vec<String> = line.trim().split(' ').map(|arg| arg.to_string()).collect();
+            let args: Vec<String> = line.trim().split(' ').map(|arg| arg.to_owned()).collect();
 
             if let Some(command) = args.get(0) {
                 let mut close = false;

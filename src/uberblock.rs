@@ -19,11 +19,11 @@ pub struct Uberblock {
 
 impl Uberblock {
     pub fn magic_little() -> u64 {
-        return 0x0cb1ba00;
+        UBERBLOCK_MAGIC.swap_bytes()
     }
 
     pub fn magic_big() -> u64 {
-        return 0x00bab10c;
+        UBERBLOCK_MAGIC
     }
 }
 
@@ -36,7 +36,7 @@ impl FromBytes for Uberblock {
             } else if uberblock.magic == Uberblock::magic_big() {
                 Ok(uberblock)
             } else {
-                Err("Error: Invalid uberblock magic number".to_string())
+                Err("Error: Invalid uberblock magic number".to_owned())
             }
         } else {
             Err(format!("Error: Need {} bytes to read uberblock, only {} in buffer",

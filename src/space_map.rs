@@ -98,7 +98,7 @@ impl SpaceMap {
             let entry_map_type = match entry.map_type() {
                 Some(map_type) => map_type,
                 None => {
-                    return Err("Invalid map type".to_string());
+                    return Err("Invalid map type".to_owned());
                 }
             };
             if entry.debug() != 1 && entry_map_type == map_type {
