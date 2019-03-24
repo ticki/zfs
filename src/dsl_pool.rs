@@ -13,14 +13,14 @@ impl DslPool {
     }
 
     fn open_impl(spa: &mut spa::Spa, txg: u64) -> zfs::Result<Self> {
-        Ok(DslPool {
+        Ok(Self {
             root_dir_obj: 0,
             dp_dirty_total: 0,
         })
     }
 
-    pub fn new() -> DslPool {
-        DslPool {
+    pub fn new() -> Self {
+        Self {
             root_dir_obj: 0,
             dp_dirty_total: 0,
         }

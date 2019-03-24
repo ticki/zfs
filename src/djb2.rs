@@ -8,8 +8,8 @@ pub struct Djb2 {
 }
 
 impl Default for Djb2 {
-    fn default() -> Djb2 {
-        Djb2 {
+    fn default() -> Self {
+        Self {
             state: 5381,
         }
     }

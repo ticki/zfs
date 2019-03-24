@@ -14,8 +14,8 @@ pub struct LzjbEncoder<'a> {
 }
 
 impl<'a> LzjbEncoder<'a> {
-    fn new(src: &'a [u8]) -> LzjbEncoder<'a> {
-        LzjbEncoder {
+    fn new(src: &'a [u8]) -> Self {
+        Self {
             src: src,
         }
     }
@@ -126,8 +126,8 @@ pub struct LzjbDecoder<'a> {
 }
 
 impl<'a> LzjbDecoder<'a> {
-    pub fn new(src: &'a [u8]) -> LzjbDecoder<'a> {
-        LzjbDecoder {
+    pub fn new(src: &'a [u8]) -> Self {
+        Self {
             src: src,
         }
     }
@@ -146,7 +146,6 @@ impl Error for DecoderError {
     fn description(&self) -> &str {
         "Failed to decode. The data is likely corrupted."
     }
-
 }
 
 
