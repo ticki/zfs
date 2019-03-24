@@ -14,11 +14,7 @@ impl DVAddr {
     }
 
     pub fn gang(&self) -> bool {
-        if self.offset & 0x8000000000000000 == 1 {
-            true
-        } else {
-            false
-        }
+        self.offset & 0x8000000000000000 == 1
     }
 
     pub fn offset(&self) -> u64 {

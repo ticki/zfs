@@ -18,7 +18,7 @@ struct Mru {
 
 impl Mru {
     pub fn new() -> Self {
-        Mru {
+        Self {
             map: HashMap::with_hasher(Default::default()),
             queue: VecDeque::new(),
             size: 1000,
@@ -58,7 +58,7 @@ struct Mfu {
 
 impl Mfu {
     pub fn new() -> Self {
-        Mfu {
+        Self {
             map: HashMap::with_hasher(Default::default()),
             size: 1000,
             used: 0,
@@ -98,7 +98,7 @@ pub struct ArCache {
 
 impl ArCache {
     pub fn new() -> Self {
-        ArCache {
+        Self {
             mru: Mru::new(),
             mfu: Mfu::new(),
         }

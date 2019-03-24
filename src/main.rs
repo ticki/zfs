@@ -142,7 +142,7 @@ pub struct Zfs {
 }
 
 impl Zfs {
-    pub fn new(disk: File) -> Result<Zfs, String> {
+    pub fn new(disk: File) -> Result<Self, String> {
         let mut zfs_reader = ZfsReader {
             zio: zio::Reader { disk: disk },
             arc: ArCache::new(),
@@ -221,7 +221,7 @@ impl Zfs {
             None => Err("Error: failed to get the ROOT"),
         };
 
-        Ok(Zfs {
+        Ok(Self {
             reader: zfs_reader,
             uberblock: uberblock,
             mos: mos,
